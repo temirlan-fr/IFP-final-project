@@ -86,7 +86,7 @@ dotnet test QueueLess.sln --collect:"XPlat Code Coverage"
 
 The verified local Release run passed 62 tests with no failures. The measured line coverage was 93.57 percent overall, 96.15 percent in Core and 99.44 percent in Infrastructure. These measurements concern instrumented C Sharp code and do not prove visual correctness or browser coverage. See docs/TESTING.txt for the exact verification scope.
 
-To run browser tests, install Node.js, enter tests/browser, run npm install, then run npx playwright install and npm test. The configuration starts the application automatically if it is not already running. Browser tests create demonstration accounts and tickets, so use a development database. GitHub Actions also contains a browser test job and uploads its report.
+To run browser tests, install Node.js, enter tests/browser, run npm install, then run npx playwright install and npm test. The configuration starts the application automatically if it is not already running. Browser tests create demonstration accounts and tickets, so use a development database. All twelve browser scenarios passed in GitHub Actions across Chromium, Firefox and mobile WebKit. The workflow uploads its report and screenshots.
 
 Project documentation
 

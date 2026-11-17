@@ -56,5 +56,7 @@ test('service search, empty state and responsive layout', async ({ page }, testI
   await page.getByRole('button', { name: 'Clear filters' }).click();
   await expect(page.locator('.service-card')).toHaveCount(4);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBeTruthy();
-  await page.screenshot({ path: testInfo.outputPath('overview.png'), fullPage: true });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+  await page.screenshot({ path: testInfo.outputPath('overview.png'), fullPage: true, scale: 'css' });
 });

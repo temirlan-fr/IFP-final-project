@@ -41,7 +41,9 @@ tests/browser contains four Playwright scenarios per configured browser: ticket 
 
 .github/workflows/ci.yml runs the C Sharp suite on Ubuntu, Windows and macOS and declares a browser job. All three platform jobs passed for commit f50c7f3 in run 44046486145. The first browser job stopped during dependency installation because ubuntu-latest had moved to Ubuntu 26.04, which the pinned Playwright version did not support. The browser runner was then pinned to Ubuntu 24.04. Inspect the subsequent run before reporting browser success.
 
-The local browser-control host was unavailable during implementation. No local visual inspection or local Playwright pass is claimed in this record. The user was given a running preview for manual review. Direct anonymous access to the GitHub Actions API also encountered a rate limit during verification.
+Remote verification completed successfully in GitHub Actions run 44049102141 for commit 3a5072b. All three operating-system jobs passed. All twelve Playwright scenarios passed across Chromium, Firefox and mobile WebKit in 50.7 seconds. The browser-results artifact contains the HTML report and overview screenshots. The desktop and mobile screenshots were downloaded and inspected. The browser test was then adjusted to scroll to the top before full-page screenshots so fixed navigation is captured in its intended position.
+
+The local browser-control host was unavailable, so no local Playwright or physical mobile-device run is claimed. The user was given a running preview for manual review. GitHub browser automation uses emulated mobile WebKit, not a physical iPhone. The remote run can be reviewed at https://github.com/temirlan-fr/IFP-final-project/actions/runs/44049102141.
 
 Manual acceptance checklist
 

@@ -45,7 +45,7 @@ Contexts are short-lived. No per-visitor polling loop is created. A single backg
 The verified C Sharp suite contains 62 passing cases. It covers pure functions, real SQLite integration, concurrent operations, ownership, roles, authentication cookies, CSRF, public pages and data isolation. A Playwright suite is supplied for Chromium, Firefox and mobile WebKit. See TESTING.txt for execution status and coverage limitations.
 
 15. Quality assurance
-The local build and automated service/HTTP tests pass. The local server and overview response were checked. A manual checklist and automated browser workflow are included. The agent's browser host was unavailable, so local visual and cross-device QA must not be described as completed without separate evidence.
+The local build and automated service/HTTP tests pass. All twelve remote Playwright scenarios passed across desktop Chromium, Firefox and mobile WebKit in run 44049102141. Desktop and mobile overview screenshots were inspected. The local server and overview response were checked. A manual checklist remains for physical devices and broader visual/accessibility review.
 
 16. Documentation
 README contains installation, accounts, features, architecture and commands in plain text. User and developer guides cover workflows and APIs. Diagrams show architecture and the data model. Testing, team allocation and presentation content are included.
