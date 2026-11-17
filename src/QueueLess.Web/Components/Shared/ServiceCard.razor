@@ -1,0 +1,12 @@
+<article class="service-card">
+    <div class="service-card-top"><span class="service-icon color-@Summary.Service.Id"><Icon Name="@IconName" Size="25" /></span><span class="availability @(Summary.Service.IsOpen ? "" : "paused")"><span class="online-dot"></span>@(Summary.Service.IsOpen ? "Available" : "Paused")</span></div>
+    <h3>@Summary.Service.Name</h3><p class="service-description">@Summary.Service.Description</p>
+    <div class="service-metrics"><div><Icon Name="clock" Size="16" /><span><strong>@Summary.EstimatedMinutes min</strong><small>Est. wait</small></span></div><div><Icon Name="users" Size="16" /><span><strong>@Summary.Waiting people</strong><small>In queue</small></span></div></div>
+    <div class="service-bottom"><span>Counter @Summary.Service.Counter.ToString("D2")</span><button class="button join-button" disabled="@(!Summary.Service.IsOpen || Disabled)" @onclick="() => OnJoin.InvokeAsync(Summary.Service.Id)">Join queue <span aria-hidden="true">→</span></button></div>
+</article>
+@code {
+    [Parameter, EditorRequired] public ServiceSummary Summary { get; set; } = null!;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public EventCallback<int> OnJoin { get; set; }
+    private string IconName => Summary.Service.Id switch { 2 => "monitor", 3 => "wallet", 4 => "book", _ => "academic" };
+}

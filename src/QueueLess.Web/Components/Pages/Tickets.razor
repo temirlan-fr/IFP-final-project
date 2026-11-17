@@ -1,0 +1,15 @@
+@page "/tickets"
+@attribute [Authorize]
+@inherits LivePage
+<PageTitle>My tickets | QueueLess</PageTitle>
+<div class="page-heading"><div><span class="eyebrow">YOUR PLACE IS SAVED</span><h1>My tickets<span class="green-text">.</span></h1><p>Keep an eye on your turn. We'll keep your place in line.</p></div><a class="button primary" href="/">Find a service <span aria-hidden="true">→</span></a></div>
+<Notice Result="Notice" />
+@if (Active is not null) { <section class="live-ticket panel" aria-live="polite"><div><span class="eyebrow">YOUR LIVE TICKET</span><div class="big-ticket-code">@Active.Code</div><h2>@Active.Service</h2><StatusBadge Status="Active.Status" /></div><div class="ticket-information"><div><span>Counter</span><strong>@Active.Counter.ToString("D2")</strong></div><div><span>Waiting ahead</span><strong>@Active.Ahead</strong></div><div><span>Estimated wait</span><strong>@Active.WaitMinutes <small>min</small></strong></div></div><div class="ticket-action"><p>@(Active.Status == TicketStatus.Serving ? "It's your turn! Please make your way to the counter." : "You can keep this page open. Your ticket updates automatically.")</p>@if (Active.Status == TicketStatus.Waiting) { @if (ConfirmCancel) { <p>Leave this queue? You will lose your place.</p><button class="button danger" disabled="@Busy" @onclick="Cancel">Yes, leave queue</button><button class="text-button" @onclick="() => ConfirmCancel = false">Keep my place</button> } else { <button class="button secondary" @onclick="() => ConfirmCancel = true">Leave queue</button> } }</div></section> } else { <section class="empty-state panel"><Icon Name="ticket" Size="40" /><h2>A fresh start. No active tickets.</h2><p>Choose a campus service and we'll save your place.</p><a class="button primary" href="/">Explore services</a></section> }
+<section class="panel history-panel"><div class="section-heading"><div><h2>Recent visits</h2><p>Your last 20 tickets, newest first.</p></div></div><div class="table-scroll"><table><thead><tr><th>Ticket</th><th>Service</th><th>Joined (UTC+5)</th><th>Status</th></tr></thead><tbody>@foreach (var ticket in TicketsList) { <tr><td class="mono">@ticket.Code</td><td>@ticket.Service</td><td>@QueueRules.CampusTime(ticket.JoinedAt).ToString("dd MMM, HH:mm")</td><td><StatusBadge Status="ticket.Status" /></td></tr> }@if (TicketsList.Count == 0) { <tr><td colspan="4" class="muted">Your visits will appear here after you join a queue.</td></tr> }</tbody></table></div></section>
+@code {
+    private List<TicketView> TicketsList = [];
+    private TicketView? Active => TicketsList.FirstOrDefault(t => QueueRules.IsActive(t.Status));
+    private bool ConfirmCancel;
+    protected override async Task LoadAsync() => TicketsList = await Queues.GetMyTicketsAsync(User);
+    private async Task Cancel() { if (Active is not null) await RunAsync(() => Queues.CancelTicketAsync(User, Active.Id)); ConfirmCancel = false; }
+}

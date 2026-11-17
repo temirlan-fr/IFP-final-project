@@ -1,0 +1,2 @@
+@if (Result is not null) { <div class="notice @(Result.Success ? "success" : "error")" role="status">@Result.Message</div> }
+@code { [Parameter] public OperationResult? Result { get; set; } }

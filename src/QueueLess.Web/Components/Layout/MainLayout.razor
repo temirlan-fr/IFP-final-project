@@ -1,23 +1,22 @@
-﻿@inherits LayoutComponentBase
-
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
+@inherits LayoutComponentBase
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="app-shell">
+    <aside class="sidebar">
+        <a class="brand" href="/" aria-label="QueueLess home"><span class="brand-mark">q<span>.</span></span><span>QueueLess<span class="brand-dot">.</span></span></a>
+        <div class="workspace-label">CAMPUS WORKSPACE</div>
+        <nav aria-label="Main navigation">
+            <NavLink href="/" Match="NavLinkMatch.All"><Icon Name="grid" /> Overview</NavLink>
+            <NavLink href="/tickets"><Icon Name="ticket" /> My tickets</NavLink>
+            <NavLink href="/appointments"><Icon Name="calendar" /> Appointments</NavLink>
+            <NavLink href="/display"><Icon Name="monitor" /> Live display <span class="nav-dot"></span></NavLink>
+            <AuthorizeView Roles="Operator"><NavLink href="/operator"><Icon Name="sliders" /> Operator desk</NavLink></AuthorizeView>
+        </nav>
+        <div class="sidebar-bottom"><div class="sidebar-tip"><span class="tip-icon"><Icon Name="clock" /></span><strong>Make time for more.</strong><p>Your place in line,<br />without standing in one.</p><a href="/appointments">Plan your visit <span aria-hidden="true">↗</span></a></div><div class="campus-caption"><span class="online-dot"></span> Campus service centre<small>Building A · Ground floor</small></div></div>
+    </aside>
+    <div class="main-shell">
+        <header class="topbar"><div class="breadcrumb">Workspace <span>/</span> <strong>Campus services</strong></div><div class="topbar-actions"><span class="live-pill"><span class="online-dot"></span> Live updates</span><AuthorizeView><Authorized Context="auth"><div class="user-chip"><span class="avatar">@auth.User.Identity!.Name![0]</span><span>@auth.User.Identity.Name</span></div><form action="/account/logout" method="post" data-enhance="false"><AntiforgeryToken /><button class="text-button" type="submit">Sign out</button></form></Authorized><NotAuthorized><a class="button small primary" href="/login">Sign in <span aria-hidden="true">↗</span></a></NotAuthorized></AuthorizeView></div></header>
+        <main id="main" class="page-content"><ErrorBoundary><ChildContent>@Body</ChildContent><ErrorContent><section class="empty-state"><h1>Let's reconnect</h1><p>We couldn't load this view. Your saved tickets are safe.</p><a href="/" class="button primary" data-enhance-nav="false">Reload workspace</a></section></ErrorContent></ErrorBoundary></main>
+        <footer>QueueLess <span>Less waiting. More living.</span><a href="/help">How it works</a></footer>
     </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
 </div>
-
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
-</div>
+<div id="blazor-error-ui" data-nosnippet role="alert">Connection interrupted. <a href="" class="reload">Reload the page</a> to continue.</div>
