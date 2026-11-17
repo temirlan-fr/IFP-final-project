@@ -1,0 +1,8 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "QueueLess: run", "type": "shell", "command": "dotnet run --project src/QueueLess.Web --launch-profile http", "problemMatcher": "$msCompile", "isBackground": true },
+    { "label": "QueueLess: test", "type": "shell", "command": "dotnet test QueueLess.sln", "group": "test", "problemMatcher": "$msCompile" },
+    { "label": "QueueLess: build", "type": "shell", "command": "dotnet build QueueLess.sln", "group": { "kind": "build", "isDefault": true }, "problemMatcher": "$msCompile" }
+  ]
+}

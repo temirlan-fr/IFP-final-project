@@ -8,7 +8,7 @@ public sealed partial class QueueService
     public async Task<List<Appointment>> GetAppointmentsAsync(ClaimsPrincipal user)
     {
         await using var db = await factory.CreateDbContextAsync();
-        var id = UserId(user);
+        var id = CurrentUserId(user);
         return await db.Appointments.AsNoTracking().Include(a => a.Service).Where(a => a.AccountId == id).OrderByDescending(a => a.StartsAt).Take(30).ToListAsync();
     }
     public async Task<List<long>> GetAvailableSlotsAsync(int serviceId, DateOnly date)

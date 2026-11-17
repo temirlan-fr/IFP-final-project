@@ -8,6 +8,7 @@ public sealed partial class QueueService(IDbContextFactory<QueueDbContext> facto
 {
     private long Now => clock.GetUtcNow().ToUnixTimeSeconds();
     public static int UserId(ClaimsPrincipal user) => user.Identity?.IsAuthenticated == true && int.TryParse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var id) ? id : 0;
+    private int CurrentUserId(ClaimsPrincipal user) => long.TryParse(user.FindFirst("session_expires")?.Value, out var expiry) && expiry > Now ? UserId(user) : 0;
 
     public async Task<List<ServiceSummary>> GetServicesAsync()
     {
@@ -25,7 +26,7 @@ public sealed partial class QueueService(IDbContextFactory<QueueDbContext> facto
 
     public async Task<List<TicketView>> GetMyTicketsAsync(ClaimsPrincipal user)
     {
-        var id = UserId(user);
+        var id = CurrentUserId(user);
         await using var db = await factory.CreateDbContextAsync();
         var tickets = await db.Tickets.AsNoTracking().Include(x => x.Service).Where(x => x.AccountId == id).OrderByDescending(x => x.Id).Take(20).ToListAsync();
         var day = QueueRules.Day(Now);
@@ -68,7 +69,7 @@ public sealed partial class QueueService(IDbContextFactory<QueueDbContext> facto
 
     private async Task<OperationResult> WriteAsync(ClaimsPrincipal user, Func<QueueDbContext, int, Task<OperationResult>> action, bool staff = false)
     {
-        var id = UserId(user);
+        var id = CurrentUserId(user);
         if (id == 0) return OperationResult.Fail("Please sign in to continue.");
         OperationResult result;
         await gate.Lock.WaitAsync();
@@ -78,6 +79,9 @@ public sealed partial class QueueService(IDbContextFactory<QueueDbContext> facto
             var account = await db.Accounts.FindAsync(id);
             if (account is null || (staff && account.Role != "Operator")) return OperationResult.Fail("You do not have permission for this action.");
             await using var transaction = await db.Database.BeginTransactionAsync();
+            var day = QueueRules.Day(Now);
+            await db.Tickets.Where(t => t.Day != day && (t.Status == TicketStatus.Waiting || t.Status == TicketStatus.Serving))
+                .ExecuteUpdateAsync(s => s.SetProperty(t => t.Status, TicketStatus.NoShow).SetProperty(t => t.FinishedAt, Now));
             result = await action(db, id);
             if (result.Success)
             {

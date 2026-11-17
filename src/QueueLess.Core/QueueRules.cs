@@ -12,8 +12,9 @@ public static class QueueRules
     public static string Day(long timestamp) => CampusTime(timestamp).ToString("yyyy-MM-dd");
     public static bool ValidSlot(long timestamp, long now)
     {
+        if (timestamp <= now || timestamp > now + 7 * 86400) return false;
         var local = CampusTime(timestamp);
-        return timestamp > now && timestamp <= now + 7 * 86400 && local.Hour >= 9 && local.Hour < 18
+        return local.Hour >= 9 && local.Hour < 18
             && local.Minute % 30 == 0 && local.Second == 0;
     }
     public static bool CanCheckIn(long slot, long now) => now >= slot - 600 && now <= slot + 900;

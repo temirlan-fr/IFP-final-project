@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using QueueLess.Core;
 using QueueLess.Infrastructure;
@@ -12,6 +13,8 @@ using QueueLess.Web.Components;
 using QueueLess.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
@@ -34,6 +37,7 @@ builder.Services.AddRateLimiter(options =>
 });
 var dataDirectory = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
 Directory.CreateDirectory(dataDirectory);
+builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(dataDirectory, "keys"))).SetApplicationName("QueueLess");
 builder.Services.AddDbContextFactory<QueueDbContext>(o => o.UseSqlite(
     builder.Configuration.GetConnectionString("QueueLess") ?? $"Data Source={Path.Combine(dataDirectory, "queueless.db")}"));
 builder.Services.AddSingleton(TimeProvider.System);

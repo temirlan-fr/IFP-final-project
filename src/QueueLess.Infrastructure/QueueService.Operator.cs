@@ -8,7 +8,7 @@ public sealed partial class QueueService
     public async Task<OperatorSnapshot> GetOperatorSnapshotAsync(ClaimsPrincipal user, int serviceId)
     {
         await using var db = await factory.CreateDbContextAsync();
-        var id = UserId(user);
+        var id = CurrentUserId(user);
         if (!await db.Accounts.AnyAsync(a => a.Id == id && a.Role == "Operator")) throw new UnauthorizedAccessException();
         var day = QueueRules.Day(Now);
         var query = db.Tickets.AsNoTracking().Where(t => t.ServiceId == serviceId && t.Day == day);
