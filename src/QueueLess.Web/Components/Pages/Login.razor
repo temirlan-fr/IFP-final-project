@@ -1,0 +1,27 @@
+@page "/login"
+@page "/register"
+@attribute [ExcludeFromInteractiveRouting]
+@inject IWebHostEnvironment Environment
+@inject NavigationManager Navigation
+<PageTitle>@(Register ? "Create account" : "Welcome back") | QueueLess</PageTitle>
+<div class="auth-layout">
+    <section class="auth-story"><span class="eyebrow">YOUR TIME, BACK IN YOUR HANDS</span><h1>Less waiting.<br />More living.</h1><p>One place for every campus queue. Join from anywhere, keep track of your turn and arrive ready.</p><div class="story-ticket"><span>YOUR NEXT STOP</span><strong>A simpler campus day.</strong><p>Live queues. Easy appointments. No guesswork.</p></div></section>
+    <section class="auth-form panel">
+        <span class="eyebrow">LET'S GET YOU STARTED</span><h2>@(Register ? "Create your account" : "Welcome back")</h2><p class="muted">@(Register ? "A little less waiting starts here." : "Sign in to manage your campus visits.")</p>
+        @if (Error is not null) { <div role="alert" class="notice error">@(Register ? "Check your details. Use a valid, unused email and a password with at least 10 characters, including a letter and a number." : "The email or password is incorrect. Please try again.")</div> }
+        <form method="post" action="@(Register ? "/account/register" : "/account/login")" data-enhance="false">
+            <AntiforgeryToken />
+            @if (Register) { <label for="name">Full name</label><input id="name" name="name" required minlength="2" maxlength="60" autocomplete="name" placeholder="Your full name" /> }
+            <label for="email">Email address</label><input id="email" name="email" type="email" required maxlength="254" autocomplete="email" placeholder="you@university.edu" />
+            <label for="password">Password</label><input id="password" name="password" type="password" required minlength="@(Register ? 10 : 1)" maxlength="128" autocomplete="@(Register ? "new-password" : "current-password")" placeholder="Enter your password" />
+            @if (Register) { <small class="muted">At least 10 characters, including a letter and a number.</small> }
+            <button class="button primary full" type="submit">@(Register ? "Create account" : "Sign in") <span aria-hidden="true">→</span></button>
+        </form>
+        <p class="auth-switch">@(Register ? "Already have an account?" : "New to QueueLess?") <a href="@(Register ? "/login" : "/register")">@(Register ? "Sign in" : "Create an account")</a></p>
+        @if (Environment.IsDevelopment()) { <details class="demo-accounts"><summary>Try the local demo</summary><p>Student: student@@queueless.demo<br />Operator: operator@@queueless.demo<br />Password: QueueLess2026!</p><small>These accounts are created only in Development.</small></details> }
+    </section>
+</div>
+@code {
+    [SupplyParameterFromQuery] public string? Error { get; set; }
+    private bool Register => new Uri(Navigation.Uri).AbsolutePath == "/register";
+}

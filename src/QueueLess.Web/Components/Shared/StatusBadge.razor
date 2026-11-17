@@ -1,0 +1,2 @@
+<span class="status-badge @Status.ToString().ToLowerInvariant()">@(Status == TicketStatus.NoShow ? "No show" : Status)</span>
+@code { [Parameter] public TicketStatus Status { get; set; } }
