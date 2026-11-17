@@ -13,6 +13,7 @@ using QueueLess.Web.Components;
 using QueueLess.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+var httpsTermination = builder.Configuration.GetValue<bool>("Hosting:HttpsTermination");
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
@@ -24,6 +25,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.Cookie.Name = "QueueLess.Session";
     options.Cookie.HttpOnly = true;
     options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
     options.SlidingExpiration = false;
 });
@@ -35,7 +37,7 @@ builder.Services.AddRateLimiter(options =>
         context.Connection.RemoteIpAddress?.ToString() ?? "local",
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 15, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
 });
-var dataDirectory = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
+var dataDirectory = builder.Configuration["Storage:DataDirectory"] ?? Path.Combine(builder.Environment.ContentRootPath, "App_Data");
 Directory.CreateDirectory(dataDirectory);
 builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(dataDirectory, "keys"))).SetApplicationName("QueueLess");
 builder.Services.AddDbContextFactory<QueueDbContext>(o => o.UseSqlite(
@@ -49,11 +51,15 @@ builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<IPasswordHasher<Account>, PasswordHasher<Account>>();
 
 var app = builder.Build();
+// Enable only when all public traffic enters through an HTTPS-terminating edge.
+// Do not trust client-supplied forwarded headers or use them for rate-limit identity.
+if (httpsTermination)
+    app.Use((context, next) => { context.Request.Scheme = "https"; return next(context); });
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
-    app.UseHttpsRedirection();
+    if (!httpsTermination) app.UseHttpsRedirection();
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseAuthentication();

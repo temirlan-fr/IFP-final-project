@@ -14,6 +14,8 @@ Result: 62 passed, zero failed and zero skipped. The test execution portion took
 
 Coverage snapshot from the recorded run
 
+The coverage numbers below describe the 62-test application baseline before production-hosting support. ProductionHostingTests adds eight cases for absent demo accounts, invalid bootstrap configuration, refusal to promote an existing Visitor, secure cookies and account/session persistence after a full host restart. All eight additional cases passed locally on 17 November 2026. The container workflow additionally builds and starts the actual Linux image with a persistent volume; consult its latest run for the deployment image result.
+
 Overall instrumented line coverage: 93.57 percent.
 Core line coverage: 96.15 percent.
 Infrastructure line coverage: 99.44 percent.

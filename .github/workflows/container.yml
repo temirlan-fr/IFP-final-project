@@ -1,0 +1,41 @@
+name: Production container
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  container-smoke:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build production image
+        run: docker build --tag queueless:test .
+      - name: Start with a persistent volume and verify HTTP
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker volume create queueless-test-data
+          docker run --detach --name queueless-test --user 0 --publish 127.0.0.1:8080:8080 --mount source=queueless-test-data,target=/data --env Hosting__HttpsTermination=true queueless:test
+          ready=false
+          for attempt in $(seq 1 40); do
+            if curl --fail --silent http://localhost:8080/health; then ready=true; break; fi
+            sleep 2
+          done
+          test "$ready" = true
+          curl --fail --silent http://localhost:8080/login --output /tmp/queueless-login.html
+          grep -q 'Welcome back' /tmp/queueless-login.html
+          curl --fail --silent http://localhost:8080/api/services --output /tmp/queueless-services.json
+          grep -q 'Student services' /tmp/queueless-services.json
+          docker exec queueless-test test -s /data/queueless.db
+          docker exec queueless-test sh -c 'test -n "$(ls /data/keys/key-*.xml)"'
+          docker restart queueless-test
+          ready=false
+          for attempt in $(seq 1 40); do
+            if curl --fail --silent http://localhost:8080/health; then ready=true; break; fi
+            sleep 2
+          done
+          test "$ready" = true
+          curl --fail --silent http://localhost:8080/api/services --output /tmp/queueless-services.json
+          grep -q 'Student services' /tmp/queueless-services.json
+      - name: Container logs
+        if: always()
+        run: docker logs queueless-test

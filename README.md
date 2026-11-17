@@ -84,7 +84,7 @@ To collect coverage, use the following command.
 
 dotnet test QueueLess.sln --collect:"XPlat Code Coverage"
 
-The verified local Release run passed 62 tests with no failures. The measured line coverage was 93.57 percent overall, 96.15 percent in Core and 99.44 percent in Infrastructure. These measurements concern instrumented C Sharp code and do not prove visual correctness or browser coverage. See docs/TESTING.txt for the exact verification scope.
+The application baseline passed 62 tests with no failures. Eight additional production-hosting cases cover bootstrap validation, secure cookies and persistence after restarting the host. The baseline measured line coverage was 93.57 percent overall, 96.15 percent in Core and 99.44 percent in Infrastructure. These measurements concern instrumented C Sharp code and do not prove visual correctness or browser coverage. See docs/TESTING.txt for the exact verification scope.
 
 To run browser tests, install Node.js, enter tests/browser, run npm install, then run npx playwright install and npm test. The configuration starts the application automatically if it is not already running. Browser tests create demonstration accounts and tickets, so use a development database. All twelve browser scenarios passed in GitHub Actions across Chromium, Firefox and mobile WebKit. The workflow uploads its report and screenshots.
 
@@ -92,6 +92,8 @@ Project documentation
 
 docs/USER_GUIDE.txt explains student and operator workflows.
 docs/DEVELOPER_GUIDE.txt explains architecture, persistence, security, API endpoints and deployment boundaries.
+
+docs/DEPLOYMENT.txt explains how to deploy the Docker container from GitHub to Railway with a persistent volume and a private operator account. Deployment requires a connected hosting account. GitHub Pages does not support this server application.
 docs/CRITERIA.txt maps all twenty assessment criteria to implementation evidence and limitations.
 docs/TESTING.txt records automated results and the manual verification checklist.
 docs/TEAM_AND_DEFENSE.txt assigns presentation responsibilities to Temirlan Bolat and Aikyn Sabit and explains the main technical decisions.

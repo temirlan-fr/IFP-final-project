@@ -38,7 +38,7 @@ HTTP endpoints issue and remove cookies. Account pages exclude interactive routi
 
 Authorize attributes protect pages. Infrastructure independently verifies the current database role before staff actions. All private reads and writes check the signed expiry claim. There is no password reset, email verification or account administration interface.
 
-Account endpoints permit fifteen requests per minute per remote IP. A reverse proxy needs properly configured trusted forwarded headers before this policy is used publicly.
+Account endpoints permit fifteen requests per minute per remote IP. Proxy clients share that proxy's limit because the application does not trust arbitrary forwarded addresses. For a larger deployment, configure verified proxy addresses or an edge rate limiter.
 
 HTTP interface
 
@@ -58,11 +58,13 @@ Configuration and deployment boundaries
 
 The http launch profile uses localhost port 5180. The https profile also provides port 7018 with a local development certificate. Production enables HTTPS redirection and HSTS. Never use Development mode or a development database for public deployment.
 
-ConnectionStrings:QueueLess overrides the SQLite connection string. Runtime data and Data Protection keys default to App_Data. Restrict directory access to the application account and choose a deployment-appropriate key encryption strategy. File persistence keeps sessions valid across restarts; file permissions still matter.
+ConnectionStrings:QueueLess overrides the SQLite connection string. Runtime data and Data Protection keys default to App_Data. Storage:DataDirectory moves both the default database and keys to a persistent directory. Restrict directory access to the application account and choose a deployment-appropriate key encryption strategy. File persistence keeps sessions valid across restarts; file permissions still matter.
 
 EnsureCreated initializes the coursework schema. Existing databases do not receive migrations after entity changes. Introduce EF migrations before maintaining deployed data. Use SQLite backup facilities or stop the app before a consistent file backup. Never erase real data to update the schema.
 
-Operator accounts require controlled provisioning outside public registration. There is no public role-promotion route. The seeded demo operator is only for the local defence environment.
+Production supports first-start operator provisioning through Bootstrap:OperatorEmail and Bootstrap:OperatorPassword. It rejects the development password and will not promote a conflicting Visitor. Remove both values after successful provisioning. There is no public role-promotion route. The seeded demo operator is only for the local defence environment.
+
+The root Dockerfile builds the production server. Hosting:HttpsTermination supports an HTTPS-only hosting edge without redirect loops. It must not be enabled on a directly exposed HTTP server. See docs/DEPLOYMENT.txt for volume configuration, operator credentials, costs and verification.
 
 Code navigation
 

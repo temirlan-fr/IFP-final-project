@@ -1,0 +1,65 @@
+QueueLess public deployment
+
+Hosting choice
+
+GitHub stores the source and runs checks. GitHub Pages cannot run this ASP.NET Core server. Railway can build the repository Dockerfile and expose the application through its HTTPS edge. Deploy one application instance with one persistent volume. Do not enable horizontal replicas.
+
+Account and costs
+
+Use only the account's available free or trial allowance unless the owner separately approves a paid plan. Check the Railway billing screen before deploying. A trial is limited by time and usage, not an unlimited free server. Export a backup before credits expire. No payment method or subscription upgrade is required by this repository.
+
+Railway setup
+
+Connect Railway to the GitHub account and create a project from temirlan-fr/IFP-final-project on the main branch. Keep the repository root as the service root. Railway detects the root Dockerfile. Do not enter an alternative build command or start command.
+
+Before the first deployment, attach a persistent volume mounted at /data. This directory contains queueless.db, SQLite journal files and the keys directory. The image itself contains no development accounts, database or keys. Do not use a temporary container directory for production data.
+
+Set the following service variables in the Railway dashboard.
+
+ASPNETCORE_ENVIRONMENT has value Production.
+PORT has value 8080.
+ASPNETCORE_HTTP_PORTS has value 8080.
+Storage__DataDirectory has value /data.
+Hosting__HttpsTermination has value true.
+RAILWAY_RUN_UID has value 0.
+Bootstrap__OperatorEmail has the operator's private sign-in email.
+Bootstrap__OperatorPassword has a new private password of 12 to 128 characters containing letters and digits.
+
+Do not commit these credentials or put them in a README. The public development password is rejected. Public registration always creates Visitors. After the operator has been created and tested, remove both Bootstrap variables. An existing Operator is retained without changing its password on later startup. A conflicting Visitor email stops startup instead of silently granting privileges.
+
+Railway documents that its volumes are mounted as root and recommends RAILWAY_RUN_UID=0 for non-root images using them. The image defaults to the non-root app user on other hosts. On hosts where volume ownership can be assigned to the app user, retain that non-root default instead. Never mount the Docker socket or a host system directory into this container.
+
+In service settings, set the healthcheck path to /health, timeout to 120 seconds, replica count to one and restart policy to On Failure with at most three retries. Use the Dockerfile builder if automatic detection does not select it. These are dashboard settings. A legacy railway.json is deliberately not supplied because Railway no longer accepts Config as Code for new services.
+
+Enable a generated Railway domain with target port 8080. Share only the HTTPS domain. The internal container port must be reachable through Railway's HTTPS edge, not a public TCP proxy. Railway handles the public certificate and HTTPS redirect.
+
+HTTPS termination
+
+Hosting__HttpsTermination declares that the hosting edge supplies HTTPS for every public request. The application treats that internal connection as HTTPS and does not redirect it back to itself. Cookies remain Secure in Production. Do not enable this option on a server exposed directly over HTTP. A directly exposed server instead needs its own HTTPS endpoint and the default HTTPS redirection.
+
+The application does not trust arbitrary X-Forwarded-For values. Account requests behind the same proxy IP share the fifteen-per-minute limit. This is conservative for the classroom demonstration but can limit multiple simultaneous users. A larger deployment should configure verified proxy addresses and forwarded headers or a trusted edge rate limiter before changing that policy.
+
+Deploy and verify
+
+Deploy the main branch and inspect the build and runtime logs. The healthcheck must pass. Open the generated HTTPS domain, register a Visitor and join a queue. In a separate browser session, sign in with the private operator account and call the visitor. Check that the public display updates. Restart the service and verify the account and ticket history remain. A volume must be attached before real data is entered.
+
+GitHub Actions builds the Docker image, runs it against a persistent volume, checks the health, login and service endpoints, and restarts it. Production HTTP tests separately verify secure cookies, bootstrap validation and account/session persistence between application hosts. A passing container check is not evidence that a Railway deployment exists; a live URL is available only after account connection and deployment succeed.
+
+Local container command
+
+docker build -t queueless .
+docker volume create queueless-data
+docker run --rm -p 127.0.0.1:8080:8080 --mount source=queueless-data,target=/data -e Hosting__HttpsTermination=true queueless
+
+This command binds only to loopback and is for a local container smoke check. HTTP can serve the health endpoint but production Secure cookies need a real HTTPS edge for browser login. A newly created Docker named volume inherits the image directory's app ownership. Existing volumes may require an administrator to set the correct ownership.
+
+Backups and updates
+
+Keep the volume attached when redeploying source changes. Do not copy the development App_Data into production. Stop the service for a consistent full-volume backup or use SQLite's online backup API. Protect the backup because it includes accounts and session keys. Do not delete the volume when replacing the application service. EnsureCreated does not upgrade an existing schema; introduce reviewed migrations before changing persisted entities.
+
+Official references
+
+https://docs.railway.com/volumes
+https://docs.railway.com/pricing/free-trial
+https://docs.railway.com/builds/dockerfiles
+https://docs.railway.com/config-as-code
