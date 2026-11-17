@@ -1,0 +1,69 @@
+QueueLess developer guide
+
+Architecture and technology comparison
+
+The solution uses .NET 10 and Blazor Interactive Server. Web depends on Infrastructure, which depends on Core. Core has no framework package dependencies. QueueRules contains pure functions for states, transitions, check-in windows, campus dates and wait estimates. Immutable records carry query results and operation outcomes.
+
+Blazor keeps the UI and rules in C Sharp. React with ASP.NET would also work, but would introduce a second language and a larger API boundary. Interactive WebAssembly moves UI execution to the browser but needs additional API authentication and client delivery. Interactive Server keeps operations on the server at the cost of a persistent connection and per-client circuit memory. These are design tradeoffs, not measured performance comparisons.
+
+SQLite provides reproducible setup without a separate database service. PostgreSQL is a stronger candidate for multiple application instances and sustained concurrent writes. The current design is intentionally one centre and one application process.
+
+Persistence
+
+Accounts own tickets and appointments. Services own queue tickets and arrival slots. Audit records actor identifiers, successful action descriptions and timestamps. Tickets have a campus date and a per-service sequence. Terminal records remain in history.
+
+UTC Unix seconds store timestamps. Campus dates and appointment times use an explicit UTC plus five offset independent of the host timezone. Arrival slots are every half-hour from 09:00 to 17:30, every day. Live queues follow operator-controlled availability rather than an automatic office schedule.
+
+Filtered unique indexes enforce one active ticket per account, one serving ticket per service, one active reservation per service and slot, and one reservation per account and slot. Service, date and sequence are also unique. Foreign keys connect accounts, services, tickets and appointments.
+
+Write consistency
+
+QueueService acquires WriteGate, creates a context and begins a transaction. It checks session expiry and the current database account, expires previous-day tickets, validates the operation and writes the change. The business mutation and audit entry commit together. It releases the gate before publishing notifications. Database uniqueness failures produce a recoverable conflict result.
+
+The gate is process-local. SQLite indexes protect specific invariants, but there is no multi-instance retry or event protocol. Scaling out would require a server database, atomic numbering, distributed notifications and load testing.
+
+Read efficiency
+
+Queries use AsNoTracking and indexed status/date filters. Ticket history is capped at twenty records, appointments at thirty, active operator rows at one hundred and audit history at eight. The public service query exposes no account data. It still loads active tickets for the day; larger deployments should use grouped database aggregates and pagination.
+
+Live state
+
+QueueChanges is a singleton publisher. LivePage refreshes the page through the renderer synchronization context. Dispose unsubscribes. A disconnected subscriber cannot undo a committed transaction. Blazor's SignalR circuit transports the rendered changes; there is no separate custom SignalR hub.
+
+One maintenance service runs every thirty seconds. It expires previous-day active tickets and marks late reservations Missed. Its heartbeat also refreshes check-in buttons. Arrival appointments join normal FIFO order when checked in.
+
+Authentication
+
+HTTP endpoints issue and remove cookies. Account pages exclude interactive routing because cookie changes need an HTTP response. Antiforgery validation precedes account mutations. PasswordHasher hashes and verifies credentials. Registration only creates Visitors.
+
+Authorize attributes protect pages. Infrastructure independently verifies the current database role before staff actions. All private reads and writes check the signed expiry claim. There is no password reset, email verification or account administration interface.
+
+Account endpoints permit fifteen requests per minute per remote IP. A reverse proxy needs properly configured trusted forwarded headers before this policy is used publicly.
+
+HTTP interface
+
+GET /health is a liveness endpoint returning a healthy status. It does not independently probe the database.
+
+GET /api/services returns service details, availability, waiting counts, estimated minutes and current public ticket codes. No authentication is required and no account details are returned.
+
+POST /account/login accepts email, password and an antiforgery token. Success creates a session and redirects. Failure produces a generic credential error.
+
+POST /account/register accepts name, email, password and an antiforgery token. It validates fields and creates a Visitor account. Duplicate or invalid data produces a generic error.
+
+POST /account/logout validates the antiforgery token, removes the cookie and redirects to the overview.
+
+Queue mutations are Blazor server event handlers calling QueueService, not public REST endpoints. Browser tests cover interactive controls; C Sharp tests cover the operations and authentication pipeline.
+
+Configuration and deployment boundaries
+
+The http launch profile uses localhost port 5180. The https profile also provides port 7018 with a local development certificate. Production enables HTTPS redirection and HSTS. Never use Development mode or a development database for public deployment.
+
+ConnectionStrings:QueueLess overrides the SQLite connection string. Runtime data and Data Protection keys default to App_Data. Restrict directory access to the application account and choose a deployment-appropriate key encryption strategy. File persistence keeps sessions valid across restarts; file permissions still matter.
+
+EnsureCreated initializes the coursework schema. Existing databases do not receive migrations after entity changes. Introduce EF migrations before maintaining deployed data. Use SQLite backup facilities or stop the app before a consistent file backup. Never erase real data to update the schema.
+
+Operator accounts require controlled provisioning outside public registration. There is no public role-promotion route. The seeded demo operator is only for the local defence environment.
+
+Code navigation
+
+Program.cs composes services and middleware. Core/QueueRules.cs contains pure rules. QueueService.cs handles visitor operations. QueueService.Bookings.cs handles reservations. QueueService.Operator.cs handles staff operations and maintenance. Components/Shared contains reusable rendering and state behaviour. Pages do not write directly to the database.

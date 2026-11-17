@@ -1,0 +1,14 @@
+flowchart LR
+    Visitor[Visitor browser] --> UI[Blazor pages and shared components]
+    Operator[Operator browser] --> UI
+    Display[Public display] --> UI
+    UI --> Auth[Cookie authentication and cascading state]
+    UI --> Application[QueueService]
+    Application --> Rules[Pure QueueRules]
+    Application --> Gate[Write gate and transaction]
+    Gate --> DB[(SQLite through EF Core)]
+    Gate --> Audit[Audit entry in same transaction]
+    Application --> Events[QueueChanges after commit]
+    Events --> SignalR[Blazor SignalR circuits]
+    SignalR --> UI
+    Maintenance[30 second maintenance] --> Application

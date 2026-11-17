@@ -1,0 +1,102 @@
+QueueLess team allocation and defence guide
+
+Team
+
+Temirlan Bolat
+Aikyn Sabit
+
+This allocation defines responsibility for studying, extending, checking and presenting the implementation. Record real programming work in the contribution section below. It does not retroactively assign authorship of generated code. The assessment requires both students to participate in programming and allows questions about any part of the application.
+
+Temirlan Bolat
+
+Primary area: application rules, database, security and operator workflow.
+
+Read Core/Models.cs and QueueRules.cs. Explain why a Waiting ticket can become Serving or Cancelled, why only a Serving ticket can be Completed or NoShow, and why a user may have only one active ticket.
+
+Read QueueDbContext.cs and all QueueService files. Explain the write gate, transaction, unique filtered indexes, FIFO numbering and audit records. Demonstrate the two-operator and double-booking tests. Explain that a process-local lock is not a multi-server solution.
+
+Read Program.cs, AccountService.cs and DatabaseSeed.cs. Explain password hashing, cookies, antiforgery tokens, visitor registration and operator authorization. Show that the role is checked against the database before staff actions. Explain why the demo credentials are development-only.
+
+Demonstrate the operator desk. Select a service, call the next ticket, complete the visit and pause/reopen the service. Explain what happens if a second operator clicks Call next simultaneously.
+
+Suggested English explanation
+
+My responsibility is the backend workflow and data integrity. QueueLess checks the user's session and account role before changing data. Each write uses a database transaction. Unique indexes protect the rules even when requests arrive close together. For example, two visitors cannot reserve the same active service slot. Pure functions make the time and state rules easy to test without a browser.
+
+Aikyn Sabit
+
+Primary area: Blazor interface, state, appointments and visitor experience.
+
+Read App.razor, Routes.razor and MainLayout.razor. Explain shared navigation, route authorization, interactive rendering and why account forms use normal HTTP requests.
+
+Read Shared/ServiceCard.razor, StatusBadge.razor, Notice.razor, Icon.razor and LivePage.cs. Explain parameters, EventCallback, cascading authentication state, event subscriptions, InvokeAsync and disposal. Show where the same components are reused.
+
+Read Home.razor, Tickets.razor, Appointments.razor and Display.razor. Demonstrate category filtering, search, ticket feedback, cancellation confirmation, arrival booking and public privacy. Explain the difference between an arrival appointment and a guaranteed service start.
+
+Read queueless.css and workspaces.css. Explain how grids change at different widths, how mobile navigation works and how keyboard focus and labels improve accessibility. Read the Playwright scenarios and distinguish executed test evidence from pending manual checks.
+
+Suggested English explanation
+
+My responsibility is the visitor experience and Blazor interface. The dashboard helps a student choose a service, and the ticket page follows the visit. Shared components keep the status, cards and feedback consistent. When a queue changes, the page reloads its data through the shared notification service and Blazor updates the connected browser. The component removes its subscription when the user leaves the page.
+
+Joint understanding
+
+Both students should trace one complete operation: button click, authenticated user, service method, database transaction, audit record, commit, notification and updated component. Both should be able to run the project, read a failing test and explain the database model. Neither student should answer that an entire half of the system is unfamiliar.
+
+Live demonstration plan
+
+Use a normal browser for the student and a private browser window for the operator so their cookies are separate. Open the public display in another window. These are separate sessions; signing in twice in the same normal browser profile replaces the shared session cookie.
+
+Aikyn starts at Overview, searches for a service, joins the queue and opens My tickets. Temirlan opens the corresponding operator desk and calls the next visitor. Aikyn shows the student's Serving status and the public display. Temirlan completes the visit. Aikyn shows history, then books and cancels an arrival slot. Temirlan shows a concurrency test and explains the database constraint.
+
+Questions and concise answers
+
+Why choose Blazor?
+It uses C Sharp for both interface behaviour and application logic, supports reusable components and provides server interaction through the framework's SignalR circuit.
+
+What is functional programming in this project?
+QueueRules contains deterministic functions with no database or mutable shared state. Given the same inputs, they return the same result. Records carry operation results and view data.
+
+Why use a DbContext factory?
+A Blazor circuit can live much longer than one request. A new context per operation avoids sharing a long-lived context across overlapping UI events.
+
+Why use a lock and a unique index?
+The lock serializes writes within this process. The unique index enforces the invariant in the database. They address different layers of consistency.
+
+What happens if two users book the same slot?
+One transaction wins. The other sees that the slot is already reserved or encounters the database constraint and receives an error result.
+
+How is waiting time calculated?
+Waiting visitors ahead multiplied by configured minutes per visit, plus one visit if a counter is busy. It is an estimate and does not predict the exact finishing time.
+
+Does an appointment skip the queue?
+No. It reserves an arrival window. Check-in creates a live ticket in normal arrival order. The interface states this explicitly.
+
+Where is SignalR used?
+Interactive Server uses SignalR for its browser circuit. QueueChanges tells components that committed data changed, and the framework sends the rendered updates. There is no separate custom hub.
+
+What happens on disconnection?
+The saved ticket stays in SQLite. The browser attempts to reconnect. After reloading, the page reads the current state. Failed notification subscribers cannot roll back successful writes.
+
+How is operator access protected?
+The route requires the Operator role, and every staff service method independently checks the current database role. Hiding a button alone is not authorization.
+
+What would change for a large deployment?
+Use a server database, distributed notifications, reliable numbering, migrations, controlled account administration, monitoring and load testing. The current version is single-instance.
+
+What did testing verify?
+The recorded local run passed 62 unit, SQLite integration and HTTP flow cases. Coverage is reported for instrumented C Sharp code. Browser tests and a manual checklist are included, and their execution status must be stated accurately.
+
+Actual contribution record
+
+Temirlan Bolat
+Code changed or implemented:
+Tests added or corrected:
+Commits:
+Explanation rehearsed:
+
+Aikyn Sabit
+Code changed or implemented:
+Tests added or corrected:
+Commits:
+Explanation rehearsed:

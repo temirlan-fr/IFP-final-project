@@ -12,7 +12,9 @@ public abstract class LivePage : ComponentBase, IDisposable
     [Inject] protected NavigationManager Navigation { get; set; } = null!;
     [Inject] protected ILogger<LivePage> Logger { get; set; } = null!;
     protected ClaimsPrincipal User = new();
-    protected bool Busy;
+    private bool busy;
+    private bool interactiveReady;
+    protected bool Busy => busy || !interactiveReady;
     protected OperationResult? Notice;
     private bool disposed;
     protected override async Task OnInitializedAsync()
@@ -22,14 +24,18 @@ public abstract class LivePage : ComponentBase, IDisposable
         await LoadAsync();
     }
     protected abstract Task LoadAsync();
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender) { interactiveReady = true; StateHasChanged(); }
+    }
     private Task RefreshAsync() => disposed ? Task.CompletedTask : InvokeAsync(async () => { await LoadAsync(); StateHasChanged(); });
     protected async Task RunAsync(Func<Task<OperationResult>> action)
     {
         if (Busy) return;
-        Busy = true;
+        busy = true;
         try { Notice = await action(); await LoadAsync(); }
         catch (Exception ex) { Logger.LogError(ex, "Queue action failed"); Notice = OperationResult.Fail("We couldn't save that change. Please try again."); }
-        finally { Busy = false; }
+        finally { busy = false; }
     }
     public void Dispose() { disposed = true; Changes.Changed -= RefreshAsync; GC.SuppressFinalize(this); }
 }

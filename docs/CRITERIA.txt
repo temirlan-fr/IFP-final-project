@@ -1,0 +1,63 @@
+QueueLess assessment evidence
+
+This document maps the twenty criteria in Final Requirements CSh to concrete project evidence. It is not a guarantee of a particular grade. Assessment also depends on the students' programming participation, explanation and live defence.
+
+1. Code structure and design
+Core, Infrastructure, Web and Tests are separate projects. Pure domain rules are separated from persistence and rendering. QueueService is split by visitor, booking and operator use cases. See architecture.mmd and DEVELOPER_GUIDE.txt.
+
+2. Component reusability
+ServiceCard, Icon, Notice and StatusBadge are reusable components with parameters. ServiceCard reports joins through EventCallback. LivePage shares subscription lifecycle, loading and operation feedback. Authentication state is cascaded from the framework. MainLayout uses child content and an error boundary.
+
+3. Cross-platform compatibility
+The application targets .NET 10 and uses a browser interface with no Windows-only application APIs. SQLite native assets are supplied by the package. Local tests were run on Windows. GitHub Actions build and C Sharp test jobs passed on Windows, Linux and macOS for commit f50c7f3. Browser rendering and actual mobile hardware are separate checks.
+
+4. State management
+SQLite is the durable source of truth. Components keep local filter and selection state. Authentication state is cascaded. A singleton QueueChanges service broadcasts committed mutations to independent Blazor circuits, and subscriptions are disposed with each page.
+
+5. UI design
+The application uses a consistent green and warm neutral palette, service illustrations built with native UI shapes, shared icons, readable hierarchy and distinct active, empty, error and success states. Dashboard, tickets, appointments and operator workspaces share one navigation shell.
+
+6. UX
+Search and categories locate services. A visitor sees their next stop on the overview. Actions show feedback and prevent duplicate submission. Cancellation and no-show actions request confirmation. Inputs have labels, controls have keyboard focus styles and status changes have accessible semantics.
+
+7. Responsiveness
+CSS contains layouts for desktop, tablet and narrow screens. Navigation becomes horizontal on mobile. Columns stack, tables scroll, cards resize and forms expand to the available width. Browser tests include a mobile WebKit viewport. Real-device inspection remains a separate QA task.
+
+8. Core functionality
+Registration, login, queue joining, FIFO calling, ticket tracking, cancellation, arrival booking, check-in, appointment cancellation, completion, no-shows and service pausing are implemented. SQLite preserves data across restarts.
+
+9. Advanced features
+Live updates use Blazor's SignalR transport, role checks are enforced in both routing and services, unique indexes and transactions protect conflicting writes, and a background worker expires stale states. There are no claims of a separate custom SignalR hub or cloud integration.
+
+10. Error handling and resilience
+Invalid state changes return OperationResult feedback. Database conflicts return a retry message. Subscriber failures do not undo writes. Error boundaries provide a reload path, account forms reject invalid data and reconnect UI handles interrupted circuits.
+
+11. Efficiency
+Reads use AsNoTracking. Recent histories are bounded and common queries have indexes. Components receive server-rendered HTML and incremental live changes. The app uses local styles and no external font service. No measured production latency claim is made.
+
+12. Scalability
+Layering, context factories, indexed queries and explicit transactions support maintainability and moderate local use. This version is single-instance. A documented upgrade path covers a server database, distributed events, atomic numbering and load testing. Multi-server scaling is not implemented.
+
+13. Resource utilization
+Contexts are short-lived. No per-visitor polling loop is created. A single background heartbeat handles time-dependent changes. Component subscriptions are removed on disposal. History limits reduce rendering work. Production memory and load profiling are not claimed.
+
+14. Testing coverage
+The verified C Sharp suite contains 62 passing cases. It covers pure functions, real SQLite integration, concurrent operations, ownership, roles, authentication cookies, CSRF, public pages and data isolation. A Playwright suite is supplied for Chromium, Firefox and mobile WebKit. See TESTING.txt for execution status and coverage limitations.
+
+15. Quality assurance
+The local build and automated service/HTTP tests pass. The local server and overview response were checked. A manual checklist and automated browser workflow are included. The agent's browser host was unavailable, so local visual and cross-device QA must not be described as completed without separate evidence.
+
+16. Documentation
+README contains installation, accounts, features, architecture and commands in plain text. User and developer guides cover workflows and APIs. Diagrams show architecture and the data model. Testing, team allocation and presentation content are included.
+
+17. Innovation
+The coursework combines live campus queues with bounded arrival reservations, private ticket views and a public reception screen. Its value is the coherent workflow and conflict handling. It is not claimed to be the first queue application or an AI prediction product.
+
+18. Creative use of FP and .NET
+QueueRules are pure functions. Records carry immutable results. LINQ projects query results. TimeProvider makes boundary tests deterministic. Blazor uses parameters, event callbacks, cascading authentication, render fragments and server interaction. EF Core supplies transactions and filtered unique indexes.
+
+19. Professionalism
+The project has reproducible commands, seeded local accounts, ignored runtime data, scoped documentation, meaningful commit history and CI configuration. Production limitations are explicit. A real public launch still needs operator provisioning, secure hosting, schema migrations and operational monitoring.
+
+20. Presentation
+PRESENTATION_OUTLINE.txt provides English slide content, technology comparison, aims, methodology, architecture, practical significance, mockup descriptions, test evidence and limitations. TEAM_AND_DEFENSE.txt provides the demonstration script and questions for both students. These are presentation source materials, not an exported PowerPoint deck.

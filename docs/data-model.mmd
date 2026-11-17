@@ -1,0 +1,44 @@
+erDiagram
+    Account ||--o{ QueueTicket : owns
+    Account ||--o{ Appointment : reserves
+    ServiceDesk ||--o{ QueueTicket : serves
+    ServiceDesk ||--o{ Appointment : schedules
+    Account {
+        int Id PK
+        string Name
+        string Email UK
+        string PasswordHash
+        string Role
+    }
+    ServiceDesk {
+        int Id PK
+        string Name
+        int Counter
+        int AverageMinutes
+        bool IsOpen
+    }
+    QueueTicket {
+        int Id PK
+        int AccountId FK
+        int ServiceId FK
+        string Day
+        int Sequence
+        string Code
+        int Status
+        long JoinedAt
+        long CalledAt
+        long FinishedAt
+    }
+    Appointment {
+        int Id PK
+        int AccountId FK
+        int ServiceId FK
+        long StartsAt
+        int Status
+    }
+    AuditEntry {
+        int Id PK
+        int ActorId
+        string Action
+        long At
+    }

@@ -1,0 +1,121 @@
+QueueLess presentation source
+
+This is an English slide outline and speaking plan. It is not a rendered PowerPoint file. Use the application itself for the live demonstration. The intended defence length is fifteen to twenty minutes including questions.
+
+Slide 1
+QueueLess
+Campus queue and appointment management
+Temirlan Bolat and Aikyn Sabit
+
+Speaker: Aikyn. Time: thirty seconds.
+Introduce the campus service centre context and the problem of needing to stay physically in a line.
+
+Slide 2
+The problem and practical significance
+Students need to know which service to visit, how many people are ahead and when to approach the counter.
+Operators need one queue order, clear completion states and a public way to call visitors.
+QueueLess makes these states visible from separate connected browser sessions.
+
+Speaker: Aikyn. Time: one minute.
+Describe a student trying to obtain an enrollment letter between classes. Do not invent survey results or quantified time savings.
+
+Slide 3
+Aim and project goals
+Aim: make campus visits easier to plan and track.
+Goals: provide live queue joining, arrival booking, operator control and reliable persistence.
+Constraints: two-person coursework, C Sharp and Blazor, local reproducible setup, one centre and one server instance.
+
+Speaker: Aikyn. Time: one minute.
+Explain that an arrival slot is not a guaranteed service start. This distinction prevents misleading promises.
+
+Slide 4
+Technology alternatives
+Blazor Interactive Server keeps interface behaviour and rules in C Sharp and supplies a live server circuit.
+React with ASP.NET would introduce a JavaScript frontend and a separate API contract.
+Blazor WebAssembly would run the UI in the browser but require additional API authentication and client deployment.
+SQLite avoids a separate server for a local demo. PostgreSQL is a future option for higher write concurrency and multiple instances.
+
+Speaker: Temirlan. Time: one minute and thirty seconds.
+Explain tradeoffs instead of claiming one technology is always faster or better. Reference the official documentation linked in README.
+
+Slide 5
+Architecture
+Browser pages and reusable components call QueueService.
+QueueService applies pure domain rules and writes through EF Core.
+SQLite stores accounts, services, tickets, appointments and audit entries.
+Committed changes refresh connected Blazor circuits.
+
+Speaker: Temirlan. Time: one minute and thirty seconds.
+Show the editable diagram in docs/architecture.mmd. Describe the dependency direction from Web to Infrastructure to Core.
+
+Slide 6
+Data integrity and security
+One active ticket per visitor.
+One serving visitor per service.
+One active reservation per service slot.
+Transactions keep changes and audit entries together.
+Hashed passwords, antiforgery tokens, expiring cookies and database role checks protect account actions.
+
+Speaker: Temirlan. Time: one minute and thirty seconds.
+Show the relevant unique indexes and the concurrent booking test. Explain that the gate is process-local and therefore not a complete scale-out mechanism.
+
+Slide 7
+Interface and mockup structure
+Desktop layout: left navigation, top account bar, service overview and personal next-stop panel.
+Visitor workflow: overview, ticket status, arrival booking and history.
+Operator workflow: service selection, current visitor, waiting list and daily outcomes.
+Mobile layout: horizontal navigation, stacked content and scrollable tables.
+
+Speaker: Aikyn. Time: one minute.
+Use the running overview and appointment page as the implemented mockup. Show the reusable ServiceCard and Notice components. Capture screenshots from the actual running app if building a separate slide deck.
+
+Slide 8
+Methodology and development plan
+Translate the assessment criteria into testable behaviours.
+Build domain and persistence before interface flows.
+Implement authentication, visitor tickets, booking and operator controls in separate stages.
+Verify concurrency and ownership with automated tests.
+Record meaningful commits and pushes after completed milestones.
+
+Speaker: Temirlan. Time: one minute.
+Open the real Git history. Do not claim dates, durations or individual contributions that are not recorded.
+
+Slide 9
+Live demonstration
+Student joins a queue and views the ticket.
+Operator calls the next visitor.
+Student and public display update without a manual reload.
+Operator completes the visit.
+Student books an arrival slot and cancels it.
+
+Speakers: both. Time: three to four minutes.
+Use separate browser sessions for the two roles. Keep one public display open. If a connection problem occurs, explain persistence and reload rather than pretending the action succeeded.
+
+Slide 10
+Testing evidence
+The recorded local run passed 62 C Sharp tests with zero failures.
+Tests cover pure rules, real SQLite transactions, concurrent joins and bookings, authorization, HTTP forms and session cookies.
+Measured line coverage is approximately 93.6 percent for instrumented C Sharp code.
+Browser scenarios target Chromium, Firefox and mobile WebKit; report their actual current status separately.
+
+Speaker: Temirlan. Time: one minute.
+Run dotnet test or show the saved test report. Distinguish server test coverage from visual and device verification.
+
+Slide 11
+Team responsibility split
+Temirlan Bolat: rules, persistence, authentication, operator operations and integration tests.
+Aikyn Sabit: Blazor pages, shared components, visitor flows, appointments, responsive styles and browser scenarios.
+Both: full-system understanding, integration review and demonstration.
+
+Speakers: both. Time: one minute.
+Describe the programming work each student actually completed. Use TEAM_AND_DEFENSE.txt to record real changes and commits before submission.
+
+Slide 12
+Limitations and next steps
+One application process and one counter per service.
+Configured waiting estimates rather than historical predictions.
+Fixed campus timezone and arrival windows.
+Future work: migrations, controlled operator administration, production account recovery, distributed updates and load testing.
+
+Speaker: Aikyn. Time: one minute, followed by questions.
+Conclude with what is implemented and demonstrable. Do not claim production deployment, universal platform testing or an exported slide deck unless those steps were completed.

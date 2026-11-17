@@ -1,0 +1,47 @@
+QueueLess user guide
+
+Getting started
+
+Open http://localhost:5180. The overview and live display are public. To join or book, sign in or create an account. A new name must contain two to sixty characters. Use a valid unused email and a password of at least ten characters containing a letter and a number. Registration signs you in automatically.
+
+Joining a queue
+
+Search or filter the service cards. Review the wait estimate and choose Join queue. The confirmation contains your ticket number. Your next stop shows the same ticket. One active ticket is allowed across all services. To start another visit, finish or cancel the first.
+
+Following your turn
+
+Open My tickets. Waiting shows the people ahead and estimated wait. Serving means the operator called you. Go to the displayed counter. Keep the page connected for automatic updates. Closing the page does not cancel your saved ticket.
+
+Leaving a queue
+
+Choose Leave queue and confirm. You lose your existing place. Rejoining creates a new ticket at the end. You cannot cancel a serving ticket; ask the operator for assistance.
+
+Planning a visit
+
+Open Appointments. Choose a service, date and available half-hour arrival time. Confirm your appointment. If another visitor reserves the slot first, choose another time. Times use campus time at UTC plus five hours. At most three upcoming reservations are allowed.
+
+Check-in
+
+Check in becomes available from ten minutes before until fifteen minutes after the slot. It creates a live ticket in normal arrival order. Finish or cancel any other active ticket first. This reservation does not guarantee an exact service start time.
+
+Changing a visit
+
+Cancel a reserved visit and confirm. The slot becomes available again. Book another slot to reschedule. Reservations that pass their check-in window become Missed. Checked-in reservations are retained as history; manage the resulting queue ticket from My tickets.
+
+Operator desk
+
+Sign in as an operator and choose the service. Call next visitor selects the oldest waiting ticket for the current campus day. Complete visit records success. Mark no-show requires confirmation. Another ticket cannot be called while a visitor is being served.
+
+Pause new arrivals prevents new tickets, check-ins and calls. It preserves existing tickets and permits the current visit to be completed. Reopen the service to resume. Daily totals and recent activity appear below the queue.
+
+Public display
+
+Open Live display in a separate window. It shows ticket codes, counters and counts without visitor names or emails. Use independent student, operator and display sessions to demonstrate real-time changes.
+
+Connection and session recovery
+
+If a reconnect message appears, wait for recovery or reload. Saved visits remain in SQLite. Read error feedback before retrying. Actions are disabled while running and until the interactive connection is ready. Sessions expire after eight hours. Sign in again if requested. Sign out on shared computers.
+
+Accessibility
+
+Tab moves through controls. Enter or Space activates buttons. A skip link leads to main content. Inputs have labels, feedback has status semantics and key states use text as well as colour. The layout adapts to narrow screens. Real-device verification is recorded in TESTING.txt.

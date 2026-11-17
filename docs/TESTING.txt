@@ -1,0 +1,70 @@
+QueueLess verification record
+
+Environment
+
+Local host: Windows with .NET SDK 10.0.401 and .NET runtime 10.0.12. Test date: 17 November 2026. Application timezone: fixed UTC plus five hours.
+
+Executed checks
+
+dotnet build QueueLess.sln --no-restore
+Result: successful build with no compiler warnings or errors after test analyzer cleanup.
+
+dotnet test QueueLess.sln --configuration Release --no-restore --collect:"XPlat Code Coverage" --results-directory artifacts/final-tests --logger "trx;LogFileName=QueueLess.trx"
+Result: 62 passed, zero failed and zero skipped. The test execution portion took approximately six seconds in the recorded local run.
+
+Coverage snapshot from the recorded run
+
+Overall instrumented line coverage: 93.57 percent.
+Core line coverage: 96.15 percent.
+Infrastructure line coverage: 99.44 percent.
+Web instrumented line coverage: 88.46 percent.
+
+Coverage concerns instrumented C Sharp assemblies. It does not establish visual quality or that every Razor interaction was exercised. The generated TRX and Cobertura reports are ignored under artifacts and are reproducible with the command above.
+
+What the tests prove
+
+Pure rules reject invalid transitions, out-of-hours slots, non-half-hour slots, past slots and extreme timestamp input. Boundary tests cover the opening and closing of check-in and campus midnight.
+
+SQLite integration tests exercise FIFO order, unique sequences for twenty concurrent visitors, duplicate joins, simultaneous operator calls, cancellation ownership, pause/reopen, terminal outcomes, database constraints, history persistence, session expiry and failure isolation for disconnected subscribers.
+
+Booking integration tests exercise competing reservations, slot release, simultaneous-service restrictions, reservation caps, check-in ownership and timing, duplicate check-in, active-ticket conflicts, missed reservations and invalid services.
+
+HTTP tests run the actual application with a temporary database. They cover public server-rendered pages, registration, cookie login, logout, operator routing, visitor restrictions, invalid credentials, antiforgery validation, password hashing, duplicate emails, public API privacy, health and 404 responses.
+
+Local server smoke check
+
+The application started at http://localhost:5180. The overview returned HTTP 200 with the expected heading and service data. The health endpoint returned healthy.
+
+Browser and operating-system matrix
+
+tests/browser contains four Playwright scenarios per configured browser: ticket join/cancel, appointment booking/cancel, live updates to another display session, and search/empty-state/responsive width. Projects target Chromium desktop, Firefox desktop and mobile WebKit.
+
+.github/workflows/ci.yml runs the C Sharp suite on Ubuntu, Windows and macOS and declares a browser job. All three platform jobs passed for commit f50c7f3 in run 44046486145. The first browser job stopped during dependency installation because ubuntu-latest had moved to Ubuntu 26.04, which the pinned Playwright version did not support. The browser runner was then pinned to Ubuntu 24.04. Inspect the subsequent run before reporting browser success.
+
+The local browser-control host was unavailable during implementation. No local visual inspection or local Playwright pass is claimed in this record. The user was given a running preview for manual review. Direct anonymous access to the GitHub Actions API also encountered a rate limit during verification.
+
+Manual acceptance checklist
+
+Open Overview at a desktop width and verify all service cards and navigation are readable.
+Open at a narrow mobile width and verify that the page has no horizontal overflow, except intended scroll containers.
+Register an account and verify that private navigation shows the correct name.
+Join a queue and verify My tickets and the overview show the same code.
+Open a separate operator session, call that visitor and verify the student ticket changes without a reload.
+Complete the visit and verify history and daily totals.
+Join and cancel a waiting ticket, checking the confirmation step.
+Reserve tomorrow's slot, cancel it and confirm it becomes selectable again.
+Try an appointment check-in outside the permitted window and confirm it is unavailable.
+Pause a service as operator and confirm a visitor cannot join it.
+Open the public display and confirm no personal information appears.
+Navigate using keyboard only and confirm the skip link, visible focus and form labels work.
+Stop and restart the application and confirm visits remain saved.
+Repeat the critical workflow in a second browser and record the result.
+
+Manual result record
+
+Tester:
+Browser and device:
+Date:
+Scenarios completed:
+Issues observed:
+Corrections and retest:
