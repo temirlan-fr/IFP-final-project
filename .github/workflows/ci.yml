@@ -1,0 +1,41 @@
+name: QueueLess checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore QueueLess.sln
+      - run: dotnet build QueueLess.sln --no-restore --configuration Release
+      - run: dotnet test QueueLess.sln --no-build --configuration Release --collect:"XPlat Code Coverage"
+  browser-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+        working-directory: tests/browser
+      - run: npx playwright install --with-deps chromium firefox webkit
+        working-directory: tests/browser
+      - run: npm test
+        working-directory: tests/browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-results
+          path: |
+            tests/browser/playwright-report/
+            tests/browser/test-results/
