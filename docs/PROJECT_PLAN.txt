@@ -1,0 +1,26 @@
+QueueLess project plan
+
+Team members
+Temirlan Bolat
+Aikyn Sabit
+
+Purpose
+Help students spend less time waiting at a campus service centre. Visitors join a live queue or reserve a time slot. Operators call the next eligible visitor and track service outcomes.
+
+Implementation milestones
+1. Create the layered solution and development plan.
+2. Implement domain rules, SQLite persistence and queue transactions.
+3. Implement accounts, secure sessions and role checks.
+4. Build the visitor dashboard and live tickets.
+5. Implement appointment booking and cancellation.
+6. Implement the operator workspace and public queue display.
+7. Polish responsive components, accessibility and recovery states.
+8. Complete automated checks, documentation and defence materials.
+
+Proposed learning and presentation responsibilities
+Temirlan Bolat studies and demonstrates domain rules, database transactions, authentication, operator actions and integration tests.
+Aikyn Sabit studies and demonstrates Blazor components, visitor flows, appointments, responsive styling and browser tests.
+Both participants must understand the full application and record their actual programming contributions. This allocation is a proposed responsibility split, not a claim of completed authorship.
+
+Delivery constraints
+English interface and documentation. README uses plain paragraphs without decorative Markdown. Each meaningful milestone is committed and pushed separately. No fabricated timestamps or attribution.
