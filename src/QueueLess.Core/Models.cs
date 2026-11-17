@@ -60,6 +60,8 @@ public sealed class AuditEntry
 
 public sealed record ServiceSummary(ServiceDesk Service, int Waiting, int EstimatedMinutes, string? ServingCode);
 public sealed record TicketView(int Id, string Code, string Service, TicketStatus Status, int Ahead, int WaitMinutes, int Counter, long JoinedAt);
+public sealed record OperatorTicket(int Id, string Code, string Name, TicketStatus Status, long JoinedAt);
+public sealed record OperatorSnapshot(List<OperatorTicket> Tickets, int Completed, int Cancelled, int NoShows, List<AuditEntry> Audit);
 public sealed record OperationResult(bool Success, string Message)
 {
     public static OperationResult Ok(string message) => new(true, message);

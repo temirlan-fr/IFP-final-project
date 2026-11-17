@@ -1,0 +1,10 @@
+@page "/display"
+@inherits LivePage
+<PageTitle>Live queue display | QueueLess</PageTitle>
+<div class="page-heading"><div><span class="eyebrow">CAMPUS SERVICE CENTRE</span><h1>A little closer to your turn<span class="green-text">.</span></h1><p>When your ticket appears, please make your way to the counter.</p></div><span class="live-pill"><span class="online-dot"></span> Updated @Updated</span></div>
+<div class="display-grid" aria-live="polite">@foreach (var service in Services) { <section class="panel display-card @(service.ServingCode is not null ? "is-serving" : "")"><div class="section-heading"><h2>@service.Service.Name</h2><Icon Name="monitor" /></div><span class="counter-label">COUNTER @service.Service.Counter.ToString("D2")</span><div class="display-number">@(service.ServingCode ?? "—")</div><p>@(service.ServingCode is not null ? "Please come to the counter" : service.Service.IsOpen ? "Ready to welcome you" : "Service temporarily paused")</p><div class="display-footer"><span>@service.Waiting waiting</span><span>About @service.EstimatedMinutes min</span></div></section> }</div><p class="estimate-note">Ticket numbers only. Personal details are never shown on this public display. Updates arrive automatically.</p>
+@code {
+    private List<ServiceSummary> Services = [];
+    private string Updated = "";
+    protected override async Task LoadAsync() { Services = await Queues.GetServicesAsync(); Updated = QueueRules.CampusTime(DateTimeOffset.UtcNow.ToUnixTimeSeconds()).ToString("HH:mm:ss"); }
+}

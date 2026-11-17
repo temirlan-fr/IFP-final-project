@@ -40,6 +40,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<WriteGate>();
 builder.Services.AddSingleton<QueueChanges>();
 builder.Services.AddScoped<QueueService>();
+builder.Services.AddHostedService<QueueMaintenance>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<IPasswordHasher<Account>, PasswordHasher<Account>>();
 
